@@ -2501,29 +2501,38 @@
         };
 
         // ==========================================
-        // INTEGRASI API IPAYMU (JALUR UTAMA)
+        // INTEGRASI API IPAYMU (HARGA DINAMIS)
         // ==========================================
         window.processPayment = async function () {
             const btn = document.getElementById('btn-pay-qris');
             const originalText = btn.innerText;
 
-            // Berikan efek loading agar pengguna tahu mesin sedang bekerja
             btn.innerText = "Memproses Tagihan...";
             btn.disabled = true;
             btn.style.opacity = "0.7";
 
             try {
-                // Memanggil serverless backend Vercel Anda sendiri
+                // 1. Ambil jumlah lembar dan hitung total harganya
+                const currentQty = window.qty;
+                const settings = window.getSettings();
+                let total = settings.priceBase;
+                if (currentQty > 1) {
+                    total += (currentQty - 1) * settings.priceAddon;
+                }
+
+                // 2. Kirim jumlah dan total harga tersebut ke backend Vercel
                 const response = await fetch('/api/create-payment', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        qty: currentQty,
+                        totalPrice: total
+                    })
                 });
 
                 const data = await response.json();
 
                 if (data.Success) {
-                    // Jika iPaymu berhasil membuat tagihan, layar Kiosk akan langsung 
-                    // dialihkan ke halaman struk pembayaran resmi iPaymu (Sandbox)
                     window.location.href = data.Data.Url;
                 } else {
                     alert("Gagal terhubung ke iPaymu: " + (data.Message || "Kesalahan sistem"));
