@@ -2501,18 +2501,17 @@
         };
 
         // ==========================================
-        // INTEGRASI API IPAYMU (HARGA DINAMIS)
+        // INTEGRASI API IPAYMU (DIRECT PAYMENT)
         // ==========================================
         window.processPayment = async function () {
             const btn = document.getElementById('btn-pay-qris');
             const originalText = btn.innerText;
 
-            btn.innerText = "Memproses Tagihan...";
+            btn.innerText = "Membuat QRIS...";
             btn.disabled = true;
             btn.style.opacity = "0.7";
 
             try {
-                // 1. Ambil jumlah lembar dan hitung total harganya
                 const currentQty = window.qty;
                 const settings = window.getSettings();
                 let total = settings.priceBase;
@@ -2520,7 +2519,7 @@
                     total += (currentQty - 1) * settings.priceAddon;
                 }
 
-                // 2. Kirim jumlah dan total harga tersebut ke backend Vercel
+                // Menembak Vercel API
                 const response = await fetch('/api/create-payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2533,9 +2532,34 @@
                 const data = await response.json();
 
                 if (data.Success) {
-                    window.location.href = data.Data.Url;
+                    // 1. Menangkap String QRIS dari iPaymu
+                    const qrString = data.Data.QrString || data.Data.QrTemplate;
+
+                    // 2. Mencari kotak tempat QRIS di layar screen-qris Anda
+                    const qrBox = document.querySelector('.qris-box');
+                    qrBox.innerHTML = ''; // Hapus teks "[ Gambar QRIS ]"
+                    qrBox.style.border = 'none';
+
+                    // 3. Menggambar ulang QRIS asli iPaymu menggunakan library QRCode.js Anda
+                    new QRCode(qrBox, {
+                        text: qrString,
+                        width: 240,
+                        height: 240,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+
+                    // 4. Pindah ke layar QRIS buatan Anda sendiri!
+                    window.navTo('screen-qris');
+
+                    // 5. Kembalikan kondisi tombol untuk sesi berikutnya
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+
                 } else {
-                    alert("Gagal terhubung ke iPaymu: " + (data.Message || "Kesalahan sistem"));
+                    alert("Gagal membuat QRIS: " + (data.Message || "Kesalahan sistem"));
                     btn.innerText = originalText;
                     btn.disabled = false;
                     btn.style.opacity = "1";
