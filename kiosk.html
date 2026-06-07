@@ -1659,8 +1659,8 @@
                         <h2
                             style="font-size: 3.5rem; font-weight: 900; color: var(--accent-color); margin-bottom: 30px;">
                             Rp <span id="price-val">25.000</span></h2>
-                        <button class="btn-pill primary" style="width: 100%; margin-bottom: 15px;"
-                            onclick="navTo('screen-qris')">Bayar QRIS 📸</button>
+                        <button id="btn-pay-qris" class="btn-pill primary" style="width: 100%; margin-bottom: 15px;"
+                            onclick="processPayment()">Bayar QRIS (Test iPaymu) 📸</button>
                         <button class="btn-pill"
                             style="width: 100%; border-color: #ddd; color: #555; box-shadow: 0 6px 0 #ddd;"
                             onclick="navTo('screen-pin')">Bayar Cash 💵</button>
@@ -2498,6 +2498,46 @@
                 total += (window.qty - 1) * settings.priceAddon;
             }
             document.getElementById('price-val').innerText = total.toLocaleString('id-ID');
+        };
+
+        // ==========================================
+        // INTEGRASI API IPAYMU (JALUR UTAMA)
+        // ==========================================
+        window.processPayment = async function () {
+            const btn = document.getElementById('btn-pay-qris');
+            const originalText = btn.innerText;
+
+            // Berikan efek loading agar pengguna tahu mesin sedang bekerja
+            btn.innerText = "Memproses Tagihan...";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+
+            try {
+                // Memanggil serverless backend Vercel Anda sendiri
+                const response = await fetch('/api/create-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.Success) {
+                    // Jika iPaymu berhasil membuat tagihan, layar Kiosk akan langsung 
+                    // dialihkan ke halaman struk pembayaran resmi iPaymu (Sandbox)
+                    window.location.href = data.Data.Url;
+                } else {
+                    alert("Gagal terhubung ke iPaymu: " + (data.Message || "Kesalahan sistem"));
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Terjadi kesalahan jaringan.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
         };
 
         window.addPin = function (num) {

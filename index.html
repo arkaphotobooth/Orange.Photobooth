@@ -80,8 +80,52 @@
             <a href="tnc.html" style="color: #FF7B00;">Kebijakan Privasi</a>
         </p>
 
-        <!-- Tombol ini untuk meyakinkan Midtrans bahwa aplikasinya nyata -->
-        <a href="kiosk.html" class="btn">Lihat Demo Mesin Kiosk</a>
+        <!-- Tombol Checkout Terintegrasi iPaymu -->
+        <button id="btn-pay" class="btn"
+            style="border: none; cursor: pointer; font-size: 16px; font-family: 'Quicksand', sans-serif;">
+            Mulai Cetak Kiosk (Test Sandbox)
+        </button>
+    </div>
+
+    <!-- Script Logika Pembayaran -->
+    <script>
+        document.getElementById('btn-pay').addEventListener('click', async function () {
+            const btn = this;
+            const originalText = btn.innerText;
+
+            // Ubah tampilan tombol saat loading
+            btn.innerText = "Memproses...";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+
+            try {
+                // Menembak API Vercel Anda sendiri
+                const response = await fetch('/api/create-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                // Cek apakah iPaymu berhasil membuat tagihan
+                if (data.Success) {
+                    // Berhasil! Alihkan layar ke halaman QRIS iPaymu
+                    window.location.href = data.Data.Url;
+                } else {
+                    alert("Gagal terhubung ke iPaymu: " + (data.Message || "Kesalahan sistem"));
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Terjadi kesalahan jaringan.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
+        });
+    </script>
     </div>
 </body>
 
