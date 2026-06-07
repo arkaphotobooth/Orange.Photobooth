@@ -13,24 +13,27 @@ export default async function handler(req, res) {
     // 1. Menangkap data dinamis yang dikirim dari kiosk.html
     const { qty, totalPrice } = req.body;
 
-    // 2. Jika tidak ada data, gunakan nilai default pengaman
     const finalQty = qty ? qty.toString() : '1';
     const finalPrice = totalPrice ? totalPrice.toString() : '10000';
 
     // 3. Merakit keranjang murni digital/jasa
     const body = {
-        product: ['Cetak Kiosk Orange Photobooth'],
-        qty: [finalQty], // Jumlah dinamis [cite: 342]
-        price: [finalPrice], // Harga dinamis [cite: 344]
+        // Info jumlah lembar diselipkan ke nama produk agar pembeli tetap tahu
+        product: [`Cetak Kiosk Orange Photobooth (${finalQty} Lembar)`],
+
+        // KUNCI UTAMA: Paksa qty menjadi 1 agar iPaymu tidak mengalikan harga lagi
+        qty: ['1'],
+
+        // Ini sudah total harga akhir yang dihitung di tablet (contoh: 15000)
+        price: [finalPrice],
+
         returnUrl: 'https://orange-photobooth-zeta.vercel.app/success',
         cancelUrl: 'https://orange-photobooth-zeta.vercel.app/cancel',
         notifyUrl: 'https://orange-photobooth-zeta.vercel.app/api/webhook',
         referenceId: 'TRX-' + Date.now(),
         paymentMethod: 'qris',
-
-        // Parameter Wajib untuk Mematikan Asuransi Jasa
         feeDirection: 'MERCHANT',
-        escrow: '0' // Format resmi iPaymu untuk mematikan penahanan dana 
+        escrow: '0'
     };
 
     const jsonBody = JSON.stringify(body);
