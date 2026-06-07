@@ -16,14 +16,19 @@ export default async function handler(req, res) {
 
     // Menyiapkan data keranjang sesuai dokumentasi iPaymu
     const body = {
-        product: ['Cetak Kiosk Generasi Pertama'], // Nama produk
-        qty: ['1'], // Jumlah
-        price: ['10000'], // Harga Rp 10.000
-        returnUrl: 'https://orange-photobooth-zeta.vercel.app/success', // URL jika sukses
-        cancelUrl: 'https://orange-photobooth-zeta.vercel.app/cancel',   // URL jika batal
-        notifyUrl: 'https://orange-photobooth-zeta.vercel.app/api/webhook', // URL target untuk Webhook nanti
-        referenceId: 'TRX-' + Date.now(), // Membuat ID Transaksi unik otomatis
-        paymentMethod: 'qris' // Memaksa halaman pembayaran langsung menampilkan QRIS
+        product: ['Cetak Kiosk Generasi Pertama'],
+        qty: ['1'],
+        price: ['10000'],
+        returnUrl: 'https://orange-photobooth-zeta.vercel.app/success',
+        cancelUrl: 'https://orange-photobooth-zeta.vercel.app/cancel',
+        notifyUrl: 'https://orange-photobooth-zeta.vercel.app/api/webhook',
+        referenceId: 'TRX-' + Date.now(),
+        paymentMethod: 'qris',
+
+        // --- TAMBAHAN BARU UNTUK MEMATIKAN ASURANSI ---
+        escrow: false,    // Mematikan sistem penahanan dana / proteksi pembeli 
+        weight: ['0'],    // Memberi tahu sistem bahwa ini bukan barang fisik yang butuh asuransi kurir 
+        feeDirection: 'MERCHANT' // Memastikan tidak ada biaya tambahan yang dibebankan ke pembeli 
     };
 
     // Proses meracik Signature Kriptografi (Keamanan iPaymu)
