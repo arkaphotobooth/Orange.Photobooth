@@ -8,8 +8,8 @@ export default async function handler(req, res) {
     }
 
     // 1. Kunci Sandbox Katon Suryo Nugroho terpasang
-    const va = process.env.IPAYMU_VA || '0000005727374098';
-    const apiKey = process.env.IPAYMU_APIKEY || 'SANDBOXB039F314-2092-422A-BFC9-679C9C17AEA9';
+    const va = process.env.IPAYMU_VA || '1179005727374098';
+    const apiKey = process.env.IPAYMU_APIKEY || '8EB7D4ED-A47E-4F7B-A629-86B6449AA3E1';
 
     // 2. Menggunakan URL khusus Direct Payment[cite: 1]
     const url = 'https://sandbox.ipaymu.com/api/v2/payment/direct';
