@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const apiKey = process.env.IPAYMU_APIKEY || '8EB7D4ED-A47E-4F7B-A629-86B6449AA3E1';
 
     // 2. Menggunakan URL khusus Direct Payment[cite: 1]
-    const url = 'https://sandbox.ipaymu.com/api/v2/payment/direct';
+    const url = 'https://my.ipaymu.com/api/v2/payment/direct';
 
     // Menangkap harga dinamis dari layar tablet
     const { qty, totalPrice } = req.body;
